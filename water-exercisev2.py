@@ -101,13 +101,13 @@ with tab1:
     st.header("詳細運動行程")
     sheet, sheet_ready, sheet_error = init_google_sheet("水中運動行程表")
     for i, row in schedule_df.iterrows():
-        with st.expander(f"{row['日期']} - {row['運動項目']} 「{row['時間']}」"):
+        with st.expander(f"{row['日期']} - {row['訓練項目']} 「{row['時間']}」"):
             st.markdown(f"**週次**：{row['週次']}\n\n**說明**：{row['詳細說明']}")
-            unique_key = f"check_{row['日期']}_{row['運動項目']}_{row['時間']}_{i}".replace(" ", "").replace(":", "")
+            unique_key = f"check_{row['日期']}_{row['訓練項目']}_{row['時間']}_{i}".replace(" ", "").replace(":", "")
             if st.checkbox("✅ 已完成", key=unique_key) and sheet_ready:
                 now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 success = write_to_sheet(sheet, [
-                    row["日期"], row["運動項目"], row["週次"], row["星期"], row["時間"],
+                    row["日期"], row["訓練項目"], row["週次"], row["星期"], row["時間"],
                     now, "已完成", row["詳細說明"], ""
                 ])
                 if success:
