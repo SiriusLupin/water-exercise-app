@@ -20,11 +20,22 @@ def init_google_sheet(sheet_name):
         return None, False, str(e)
 
 # ----------------------
-# 寫入紀錄到 Google Sheet
+# 寫入紀錄到 Google Sheet（寫入完整欄位）
 # ----------------------
-def write_to_sheet(sheet, data):
+def write_to_sheet(sheet, row_data, finish_time):
     try:
-        sheet.append_row(data)
+        record = [
+            row_data["日期"],
+            row_data["運動項目"],
+            row_data["週次"],
+            row_data["星期"],
+            row_data["時間"],
+            finish_time,
+            "已完成",
+            row_data["詳細說明"],
+            ""
+        ]
+        sheet.append_row(record)
         return True
     except Exception as e:
         return False
@@ -73,9 +84,9 @@ with tab1:
         gcal = schedule.copy()
         gcal["Subject"] = gcal["運動項目"]
         gcal["Start Date"] = gcal["日期"]
-        gcal["Start Time"] = "08:00 PM"
+        gcal["Start Time"] = "08:00 AM"
         gcal["End Date"] = gcal["日期"]
-        gcal["End Time"] = "08:45 PM"
+        gcal["End Time"] = "08:45 AM"
         gcal["Description"] = gcal["詳細說明"]
         gcal["Location"] = "水池"
         gcal["All Day Event"] = "False"
@@ -95,7 +106,7 @@ with tab1:
             st.markdown(f"**週次**：{row['週次']}\n\n**說明**：{row['詳細說明']}")
             if st.checkbox("✅ 已完成", key=f"check_{i}") and sheet_ready:
                 now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                success = write_to_sheet(sheet, [row["日期"], row["運動項目"], now, "已完成"])
+                success = write_to_sheet(sheet, row, now)
                 if success:
                     st.success("已記錄到 Google Sheet")
                 else:
