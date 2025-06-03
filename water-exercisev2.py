@@ -119,16 +119,20 @@ with tab1:
 # Tab 2 - 狀態檢查
 # ----------------------
 with tab2:
-    st.title("🔍 連線狀態檢查")
-    st.subheader("Google Sheets 連線")
-    if sheet_ready:
-        st.success("已成功連接 Google Sheet")
-    else:
-        st.error("連線失敗")
-        st.code(sheet_error)
+    st.title("🔍 系統狀態檢查")
 
-    st.subheader("secrets 讀取")
-    try:
-        st.json(st.secrets["gcp_service_account"])
-    except:
-        st.error("無法讀取 secrets")
+    st.subheader("🔑 Google Sheets API 初始化")
+    if sheet_ready:
+        st.success("✅ 成功連線 Google Sheets 並取得工作表")
+    else:
+        st.error(f"❌ Google Sheets 初始化失敗：{sheet_error}")
+
+    st.subheader("🔎 secrets 設定檢查")
+    if "gcp_service_account" not in st.secrets:
+        st.error("❌ st.secrets 中找不到 gcp_service_account")
+    else:
+        st.success("✅ 成功載入 gcp_service_account")
+        # 僅顯示不敏感的資訊，如 email
+        client_email = st.secrets["gcp_service_account"].get("client_email", "未找到 Email")
+        st.code(f"client_email: {client_email}")
+
