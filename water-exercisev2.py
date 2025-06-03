@@ -20,25 +20,36 @@ def init_google_sheet(sheet_name):
         return None, False, str(e)
 
 # ----------------------
-# 寫入紀錄到 Google Sheet（寫入完整欄位）
+# 寫入紀錄到 Google Sheet
 # ----------------------
-def write_to_sheet(sheet, row_data, finish_time):
+def write_to_sheet(sheet, data):
     try:
-        record = [
-            row_data["日期"],
-            row_data["訓練項目"],
-            row_data["週次"],
-            row_data["星期"],
-            row_data["時間"],
-            finish_time,
-            "已完成",
-            row_data["操作說明"],
-            ""
-        ]
-        sheet.append_row(record)
+        sheet.append_row(data)
         return True
     except Exception as e:
         return False
+
+# ----------------------
+# 產出行事曆 CSV（每週一、二，各一筆，固定時間）
+# ----------------------
+def create_calendar_csv(start_date):
+    rows = []
+    for i in range(4):  # 四週
+        for j in range(2):  # 週一與週二
+            day = start_date + datetime.timedelta(days=i*7 + j)
+            row = {
+                "Subject": "水中運動訓練",
+                "Start Date": day.strftime("%Y/%m/%d"),
+                "Start Time": "08:00 PM",
+                "End Date": day.strftime("%Y/%m/%d"),
+                "End Time": "09:00 PM",
+                "Description": "水中阻力訓練與有氧強化",
+                "Location": "水池",
+                "All Day Event": "False",
+                "Private": "True"
+            }
+            rows.append(row)
+    return pd.DataFrame(rows)
 
 # ----------------------
 # App 開始
@@ -68,7 +79,7 @@ with tab1:
     # 選擇起始日期
     start_date = st.date_input("📅 請輸入起始運動日 (週一)", datetime.date.today())
 
-    # 產生行程資料表
+    # 產生完整行程表資料（週一與週二）
     full_schedule = []
     for i in range(4):
         for j, day_label in enumerate(["週一", "週二"]):
@@ -76,25 +87,13 @@ with tab1:
             day_plan = df[df["星期"] == day_label].copy()
             day_plan["日期"] = day_date.strftime("%Y-%m-%d")
             day_plan["週次"] = f"第{i+1}週"
+            day_plan["星期"] = day_label
             full_schedule.append(day_plan)
     schedule_df = pd.concat(full_schedule)
 
-    # 匯出 Google Calendar CSV
-    def create_calendar_csv(schedule):
-        gcal = schedule.copy()
-        gcal["Subject"] = gcal["訓練項目"]
-        gcal["Start Date"] = gcal["日期"]
-        gcal["Start Time"] = "08:00 PM"
-        gcal["End Date"] = gcal["日期"]
-        gcal["End Time"] = "08:45 PM"
-        gcal["Description"] = gcal["操作說明"]
-        gcal["Location"] = "水池"
-        gcal["All Day Event"] = "False"
-        gcal["Private"] = "True"
-        return gcal[["Subject", "Start Date", "Start Time", "End Date", "End Time", "Description", "Location", "All Day Event", "Private"]]
-
+    # 匯出 Google Calendar CSV（新版邏輯）
     csv_buffer = StringIO()
-    calendar_csv = create_calendar_csv(schedule_df)
+    calendar_csv = create_calendar_csv(start_date)
     calendar_csv.to_csv(csv_buffer, index=False)
     st.download_button("📅 下載 Google 行事曆 CSV", data=csv_buffer.getvalue(), file_name="calendar.csv", mime="text/csv")
 
@@ -102,11 +101,14 @@ with tab1:
     st.header("詳細運動行程")
     sheet, sheet_ready, sheet_error = init_google_sheet("水中運動行程表")
     for i, row in schedule_df.iterrows():
-        with st.expander(f"{row['日期']} - {row['訓練項目']} 「{row['時間']}」"):
-            st.markdown(f"**週次**：{row['週次']}\n\n**說明**：{row['操作說明']}")
+        with st.expander(f"{row['日期']} - {row['運動項目']} 「{row['時間']}」"):
+            st.markdown(f"**週次**：{row['週次']}\n\n**說明**：{row['詳細說明']}")
             if st.checkbox("✅ 已完成", key=f"check_{i}") and sheet_ready:
                 now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                success = write_to_sheet(sheet, row, now)
+                success = write_to_sheet(sheet, [
+                    row["日期"], row["運動項目"], row["週次"], row["星期"], row["時間"],
+                    now, "已完成", row["詳細說明"], ""
+                ])
                 if success:
                     st.success("已記錄到 Google Sheet")
                 else:
