@@ -103,7 +103,8 @@ with tab1:
     for i, row in schedule_df.iterrows():
         with st.expander(f"{row['日期']} - {row['訓練項目']} 「{row['時間']}」"):
             st.markdown(f"**週次**：{row['週次']}\n\n**說明**：{row['操作說明']}")
-            if st.checkbox("✅ 已完成", key=f"check_{i}") and sheet_ready:
+            unique_key = f"check_{row['日期']}_{row['訓練項目']}_{row['時間']}".replace(" ", "").replace(":", "")
+            if st.checkbox("✅ 已完成", key=unique_key) and sheet_ready:
                 now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 success = write_to_sheet(sheet, [
                     row["日期"], row["訓練項目"], row["週次"], row["星期"], row["時間"],
