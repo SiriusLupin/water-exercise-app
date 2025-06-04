@@ -70,6 +70,11 @@ with tab1:
     start_date = st.date_input("📅 起始運動日", datetime.date.today())
     weekday_options = ["週一", "週二", "週三", "週四", "週五", "週六", "週日"]
     selected_days = st.multiselect("請選擇執行日 (可多選)", weekday_options)
+  
+    if not selected_days:
+    st.warning("⚠️ 請至少選擇一個執行日（星期）")
+    st.stop()
+
     weekday_map = {"週一": 0, "週二": 1, "週三": 2, "週四": 3, "週五": 4, "週六": 5, "週日": 6}
 
     # 依據選擇的星期與起始日，建立對應的日期清單
@@ -88,16 +93,7 @@ with tab1:
     if len(selected_days) > max_times:
         st.warning("⚠️ schedule.csv 中的訓練次數少於你選擇的每週訓練日數！")
 
-    # 移除欄位前後空白，確保欄位名一致
-    df.columns = df.columns.str.strip()
-    date_plan_df.columns = date_plan_df.columns.str.strip()
-
-    # 轉換週次與次數為字串方便比對
-    df["週次"] = df["週次"].astype(str)
-    date_plan_df["週次"] = date_plan_df["週次"].astype(str)
-    df["次數"] = df["次數"].astype(int)
-    date_plan_df["次數"] = date_plan_df["次數"].astype(int)
-    
+   
     # 建立完整行程表資料
     merged_df = pd.merge(date_plan_df, df, on=["週次", "次數"], how="left")
     schedule_df = merged_df.dropna()
