@@ -88,6 +88,16 @@ with tab1:
     if len(selected_days) > max_times:
         st.warning("⚠️ schedule.csv 中的訓練次數少於你選擇的每週訓練日數！")
 
+    # 移除欄位前後空白，確保欄位名一致
+    df.columns = df.columns.str.strip()
+    date_plan_df.columns = date_plan_df.columns.str.strip()
+
+    # 轉換週次與次數為字串方便比對
+    df["週次"] = df["週次"].astype(str)
+    date_plan_df["週次"] = date_plan_df["週次"].astype(str)
+    df["次數"] = df["次數"].astype(int)
+    date_plan_df["次數"] = date_plan_df["次數"].astype(int)
+    
     # 建立完整行程表資料
     merged_df = pd.merge(date_plan_df, df, on=["週次", "次數"], how="left")
     schedule_df = merged_df.dropna()
