@@ -102,9 +102,15 @@ with tab1:
     date_plan_df["週次"] = date_plan_df["週次"].astype(str)
     df["次數"] = df["次數"].astype(int)
     date_plan_df["次數"] = date_plan_df["次數"].astype(int)
+    st.write("🧪 日期配對對照表")
+    st.dataframe(date_plan_df)
+
+
 
     # 建立完整行程表資料
     merged_df = pd.merge(date_plan_df, df, on=["週次", "次數"], how="left")
+    st.write("🧪 合併後資料")
+    st.dataframe(merged_df)
     schedule_df = merged_df.dropna()
 
     # 匯出 Google Calendar CSV
