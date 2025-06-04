@@ -98,10 +98,12 @@ with tab1:
     date_plan_df.columns = date_plan_df.columns.str.strip()
 
     # 轉換週次與次數為字串方便比對
-    df["週次"] = df["週次"].astype(str)
-    date_plan_df["週次"] = date_plan_df["週次"].astype(str)
-    df["次數"] = df["次數"].astype(int)
-    date_plan_df["次數"] = date_plan_df["次數"].astype(int)
+    df["週次"] = df["週次"].astype(str).str.strip()
+    df["次數"] = df["次數"].astype(str).str.strip()
+    date_plan_df["週次"] = date_plan_df["週次"].astype(str).str.strip()
+    date_plan_df["次數"] = date_plan_df["次數"].astype(str).str.strip()
+    st.write("df 次數 unique:", df["次數"].unique())
+    st.write("date_plan_df 次數 unique:", date_plan_df["次數"].unique())
     st.write("🧪 日期配對對照表")
     st.dataframe(date_plan_df)
 
