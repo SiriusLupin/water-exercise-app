@@ -72,8 +72,8 @@ with tab1:
     selected_days = st.multiselect("請選擇執行日 (可多選)", weekday_options)
   
     if not selected_days:
-    st.warning("⚠️ 請至少選擇一個執行日（星期）")
-    st.stop()
+        st.warning("⚠️ 請至少選擇一個執行日（星期）")
+        st.stop()
 
     weekday_map = {"週一": 0, "週二": 1, "週三": 2, "週四": 3, "週五": 4, "週六": 5, "週日": 6}
 
