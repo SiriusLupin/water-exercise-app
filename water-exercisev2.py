@@ -40,9 +40,9 @@ def create_calendar_csv(start_date):
             row = {
                 "Subject": "水中運動訓練",
                 "Start Date": day.strftime("%Y/%m/%d"),
-                "Start Time": "08:00 PM",
+                "Start Time": "06:30 PM",
                 "End Date": day.strftime("%Y/%m/%d"),
-                "End Time": "09:00 PM",
+                "End Time": "07:30 PM",
                 "Description": "水中阻力訓練與有氧強化",
                 "Location": "水池",
                 "All Day Event": "False",
