@@ -79,17 +79,21 @@ with tab1:
     # 選擇起始日期
     start_date = st.date_input("📅 請輸入起始運動日 (週一)", datetime.date.today())
 
-    # 產生完整行程表資料（週一與週二）
+
+    # 根據訓練表的順序，自動產生對應日期與週次
     full_schedule = []
-    for i in range(4):
-        for j, day_label in enumerate(["週一", "週二"]):
-            day_date = start_date + datetime.timedelta(days=i*7 + j)
-            day_plan = df[df["星期"] == day_label].copy()
-            day_plan["日期"] = day_date.strftime("%Y-%m-%d")
-            day_plan["週次"] = f"第{i+1}週"
-            day_plan["星期"] = day_label
-            full_schedule.append(day_plan)
-    schedule_df = pd.concat(full_schedule)
+    total_days = len(df)
+    for i in range(total_days):
+        day_offset = datetime.timedelta(days=i)
+        day_date = start_date + day_offset
+        week_number = i // 2 + 1  # 每週兩筆，週次從 1 開始
+        day_plan = df.iloc[[i]].copy()
+        day_plan["日期"] = day_date.strftime("%Y-%m-%d")
+        day_plan["週次"] = f"第{week_number}週"
+        full_schedule.append(day_plan)
+
+    schedule_df = pd.concat(full_schedule, ignore_index=True)
+    
 
     # 匯出 Google Calendar CSV（新版邏輯）
     csv_buffer = StringIO()
